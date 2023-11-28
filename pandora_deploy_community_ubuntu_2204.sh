@@ -5,6 +5,9 @@
 ## Tested versions ##
 # Ubuntu 22.04.1
 # Ubuntu 22.04.2
+##############################################################################################################
+# Modified by DGS - To work for AWS Install
+##############################################################################################################
 
 #avoid promps
 export DEBIAN_FRONTEND=noninteractive
@@ -14,7 +17,7 @@ export NEEDRESTART_SUSPEND=1
 PANDORA_CONSOLE=/var/www/html/pandora_console
 PANDORA_SERVER_CONF=/etc/pandora/pandora_server.conf
 PANDORA_AGENT_CONF=/etc/pandora/pandora_agent.conf
-WORKDIR=/opt/pandora/deploy
+WORKDIR=/mnt/fms/pandora/deploy
 
 
 S_VERSION='2023062901'
@@ -179,10 +182,10 @@ installing_docker () {
 echo "Starting PandoraFMS Community deployment Ubuntu 22.04 ver. $S_VERSION"
 
 #check tools
-if ! grep --version &>> $LOGFILE ; then echo 'Error grep is not detected on the system, grep tool is needed for installation.'; exit -1 ;fi 
-if ! sed --version &>> $LOGFILE ; then echo 'Error sed is not detected on the system, sed tool is needed for installation.'; exit -1 ;fi 
-if ! curl --version &>> $LOGFILE ; then echo 'Error curl is not detected on the system, curl tool is needed for installation.'; exit -1 ;fi 
-if ! ping -V &>> $LOGFILE ; then echo 'Error ping is not detected on the system, ping tool is needed for installation.'; exit -1 ;fi 
+if ! grep --version &>> $LOGFILE ; then echo 'Error grep is not detected on the system, grep tool is needed for installation.'; exit -1 ;fi
+if ! sed --version &>> $LOGFILE ; then echo 'Error sed is not detected on the system, sed tool is needed for installation.'; exit -1 ;fi
+if ! curl --version &>> $LOGFILE ; then echo 'Error curl is not detected on the system, curl tool is needed for installation.'; exit -1 ;fi
+if ! ping -V &>> $LOGFILE ; then echo 'Error ping is not detected on the system, ping tool is needed for installation.'; exit -1 ;fi
 
 # Ubuntu Version
 if [ ! "$(grep -Ei 'Ubuntu' /etc/lsb-release)" ]; then
@@ -229,7 +232,7 @@ execute_cmd "systemctl --version" "Checking SystemD" 'This is not a SystemD enab
 execute_cmd  "[ $(grep MemTotal /proc/meminfo | awk '{print $2}') -ge 1700000 ]" 'Checking memory (required: 2 GB)'
 
 # Check disk size at least 10 Gb free space
-execute_cmd "[ $(df -BM / | tail -1 | awk '{print $4}' | tr -d M) -gt 10000 ]" 'Checking Disk (required: 10 GB free min)'
+execute_cmd "[ $(df -BM /mnt/fms | tail -1 | awk '{print $4}' | tr -d M) -gt 10000 ]" 'Checking Disk (required: 10 GB free min)'
 
 # Setting timezone
 rm -rf /etc/localtime &>> "$LOGFILE"
@@ -392,7 +395,7 @@ echo -en "${cyan}Installing VMware SDK...${reset}"
     sed --follow-symlinks -i -e "s/[^#].*show_EULA().*/  #show_EULA();/g" vmware-install.pl &>> "$LOGFILE"
     ./vmware-install.pl --default &>> "$LOGFILE"
 check_cmd_status "Error Installing VMware SDK"
-execute_cmd "cpan Crypt::OpenSSL::AES" "Installing extra vmware dependencie" 
+execute_cmd "cpan Crypt::OpenSSL::AES" "Installing extra vmware dependencie"
 cd $WORKDIR &>> "$LOGFILE"
 
 
@@ -456,7 +459,7 @@ check_cmd_status "Error Installing MySql Server"
 #Configuring Database
 if [ "$SKIP_DATABASE_INSTALL" -eq '0' ] ; then
     execute_cmd "systemctl start mysql" "Starting database engine"
-    
+
     echo """
     ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$DBROOTPASS';
     """ | mysql -uroot &>> "$LOGFILE"
@@ -468,7 +471,7 @@ if [ "$SKIP_DATABASE_INSTALL" -eq '0' ] ; then
     check_cmd_status "Error creating database $DBNAME, is this an empty node? if you have a previus installation please contact with support."
 
     echo "CREATE USER  \"$DBUSER\"@'%' IDENTIFIED BY \"$DBPASS\";" | mysql -uroot -P$DBPORT -h$DBHOST
-    echo "ALTER USER \"$DBUSER\"@'%' IDENTIFIED WITH mysql_native_password BY \"$DBPASS\"" | mysql -uroot -P$DBPORT -h$DBHOST        
+    echo "ALTER USER \"$DBUSER\"@'%' IDENTIFIED WITH mysql_native_password BY \"$DBPASS\"" | mysql -uroot -P$DBPORT -h$DBHOST
     echo "GRANT ALL PRIVILEGES ON $DBNAME.* TO \"$DBUSER\"@'%'" | mysql -uroot -P$DBPORT -h$DBHOST
 fi
 export MYSQL_PWD=$DBPASS
@@ -570,27 +573,27 @@ execute_cmd "mv gotty /usr/bin/" 'Installing gotty util'
 #Enable SSL connections
 cat > /etc/apache2/conf-available/ssl-params.conf << EOF_PARAM
 SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
-    
+
     SSLProtocol All -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
-    
+
     SSLHonorCipherOrder On
-    
-    
+
+
     Header always set X-Frame-Options DENY
-    
+
     Header always set X-Content-Type-Options nosniff
-    
+
     # Requires Apache >= 2.4
-    
+
     SSLCompression off
-    
+
     SSLUseStapling on
-    
+
     SSLStaplingCache "shmcb:logs/stapling-cache(150000)"
-    
-    
+
+
     # Requires Apache >= 2.4.11
-    
+
     SSLSessionTickets Off
 EOF_PARAM
 
@@ -702,7 +705,7 @@ group www-data
 EOF_G
 
 # Enable agent remote config
-sed -i "s/^remote_config.*$/remote_config 1/g" $PANDORA_AGENT_CONF 
+sed -i "s/^remote_config.*$/remote_config 1/g" $PANDORA_AGENT_CONF
 
 # Set Oracle environment for pandora_server
 cat > /etc/pandora/pandora_server.env << 'EOF_ENV'
