@@ -5,19 +5,26 @@
 ## Tested versions ##
 # Ubuntu 22.04.1
 # Ubuntu 22.04.2
-##############################################################################################################
-# Modified by DGS - To work for AWS Install
-##############################################################################################################
+
+#sed -i 's|/data/pandora//pandora_console|/data/pandora/pandora_console|g' "$0"
+#sed -i 's|/etc/pandora/pandora_server.conf|/data/pandora/pandora_server.conf|g' "$0"
+#sed -i 's|/etc/pandora/pandora_agent.conf|/data/pandora/pandora_agent.conf|g' "$0"
+#sed -i 's|/opt/pandora/deploy|/data/pandora/deploy|g' "$0"
 
 #avoid promps
 export DEBIAN_FRONTEND=noninteractive
 export NEEDRESTART_SUSPEND=1
 
 #Constants
-PANDORA_CONSOLE=/var/www/html/pandora_console
-PANDORA_SERVER_CONF=/etc/pandora/pandora_server.conf
-PANDORA_AGENT_CONF=/etc/pandora/pandora_agent.conf
-WORKDIR=/mnt/fms/pandora/deploy
+#PANDORA_CONSOLE=/data/pandora/pandora_console
+#PANDORA_SERVER_CONF=/etc/pandora/pandora_server.conf
+#PANDORA_AGENT_CONF=/etc/pandora/pandora_agent.conf
+#WORKDIR=/opt/pandora/deploy
+
+PANDORA_CONSOLE=/data/pandora/pandora_console
+PANDORA_SERVER_CONF=/data/pandora/pandora_server.conf
+PANDORA_AGENT_CONF=/data/pandora/pandora_agent.conf
+WORKDIR=/data/pandora/deploy
 
 
 S_VERSION='2023062901'
@@ -182,10 +189,10 @@ installing_docker () {
 echo "Starting PandoraFMS Community deployment Ubuntu 22.04 ver. $S_VERSION"
 
 #check tools
-if ! grep --version &>> $LOGFILE ; then echo 'Error grep is not detected on the system, grep tool is needed for installation.'; exit -1 ;fi
-if ! sed --version &>> $LOGFILE ; then echo 'Error sed is not detected on the system, sed tool is needed for installation.'; exit -1 ;fi
-if ! curl --version &>> $LOGFILE ; then echo 'Error curl is not detected on the system, curl tool is needed for installation.'; exit -1 ;fi
-if ! ping -V &>> $LOGFILE ; then echo 'Error ping is not detected on the system, ping tool is needed for installation.'; exit -1 ;fi
+if ! grep --version &>> $LOGFILE ; then echo 'Error grep is not detected on the system, grep tool is needed for installation.'; exit -1 ;fi 
+if ! sed --version &>> $LOGFILE ; then echo 'Error sed is not detected on the system, sed tool is needed for installation.'; exit -1 ;fi 
+if ! curl --version &>> $LOGFILE ; then echo 'Error curl is not detected on the system, curl tool is needed for installation.'; exit -1 ;fi 
+if ! ping -V &>> $LOGFILE ; then echo 'Error ping is not detected on the system, ping tool is needed for installation.'; exit -1 ;fi 
 
 # Ubuntu Version
 if [ ! "$(grep -Ei 'Ubuntu' /etc/lsb-release)" ]; then
@@ -232,7 +239,7 @@ execute_cmd "systemctl --version" "Checking SystemD" 'This is not a SystemD enab
 execute_cmd  "[ $(grep MemTotal /proc/meminfo | awk '{print $2}') -ge 1700000 ]" 'Checking memory (required: 2 GB)'
 
 # Check disk size at least 10 Gb free space
-execute_cmd "[ $(df -BM /mnt/fms | tail -1 | awk '{print $4}' | tr -d M) -gt 10000 ]" 'Checking Disk (required: 10 GB free min)'
+#execute_cmd "[ $(df -BM / | tail -1 | awk '{print $4}' | tr -d M) -gt 10000 ]" 'Checking Disk (required: 10 GB free min)'
 
 # Setting timezone
 rm -rf /etc/localtime &>> "$LOGFILE"
@@ -395,7 +402,7 @@ echo -en "${cyan}Installing VMware SDK...${reset}"
     sed --follow-symlinks -i -e "s/[^#].*show_EULA().*/  #show_EULA();/g" vmware-install.pl &>> "$LOGFILE"
     ./vmware-install.pl --default &>> "$LOGFILE"
 check_cmd_status "Error Installing VMware SDK"
-execute_cmd "cpan Crypt::OpenSSL::AES" "Installing extra vmware dependencie"
+execute_cmd "cpan Crypt::OpenSSL::AES" "Installing extra vmware dependencie" 
 cd $WORKDIR &>> "$LOGFILE"
 
 
@@ -459,7 +466,7 @@ check_cmd_status "Error Installing MySql Server"
 #Configuring Database
 if [ "$SKIP_DATABASE_INSTALL" -eq '0' ] ; then
     execute_cmd "systemctl start mysql" "Starting database engine"
-
+    
     echo """
     ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$DBROOTPASS';
     """ | mysql -uroot &>> "$LOGFILE"
@@ -471,7 +478,7 @@ if [ "$SKIP_DATABASE_INSTALL" -eq '0' ] ; then
     check_cmd_status "Error creating database $DBNAME, is this an empty node? if you have a previus installation please contact with support."
 
     echo "CREATE USER  \"$DBUSER\"@'%' IDENTIFIED BY \"$DBPASS\";" | mysql -uroot -P$DBPORT -h$DBHOST
-    echo "ALTER USER \"$DBUSER\"@'%' IDENTIFIED WITH mysql_native_password BY \"$DBPASS\"" | mysql -uroot -P$DBPORT -h$DBHOST
+    echo "ALTER USER \"$DBUSER\"@'%' IDENTIFIED WITH mysql_native_password BY \"$DBPASS\"" | mysql -uroot -P$DBPORT -h$DBHOST        
     echo "GRANT ALL PRIVILEGES ON $DBNAME.* TO \"$DBUSER\"@'%'" | mysql -uroot -P$DBPORT -h$DBHOST
 fi
 export MYSQL_PWD=$DBPASS
@@ -525,7 +532,7 @@ if [ "$PANDORA_LTS" -eq '1' ] ; then
     [ "$PANDORA_SERVER_PACKAGE" ]       || PANDORA_SERVER_PACKAGE="https://firefly.pandorafms.com/pandorafms/latest/Tarball/LTS/pandorafms_server-7.0NG.tar.gz"
     [ "$PANDORA_CONSOLE_PACKAGE" ]      || PANDORA_CONSOLE_PACKAGE="https://firefly.pandorafms.com/pandorafms/latest/Tarball/LTS/pandorafms_console-7.0NG.tar.gz"
     [ "$PANDORA_AGENT_PACKAGE" ]        || PANDORA_AGENT_PACKAGE="https://firefly.pandorafms.com/pandorafms/latest/Tarball/pandorafms_agent_linux-7.0NG.x86_64.tar.gz"
-elif [ "$PANDORA_LTS" -ne '1' ] ; then
+elif [ "$PANDORApackages_LTS" -ne '1' ] ; then
     [ "$PANDORA_SERVER_PACKAGE" ]       || PANDORA_SERVER_PACKAGE="https://firefly.pandorafms.com/pandorafms/latest/Tarball/pandorafms_server-7.0NG.tar.gz"
     [ "$PANDORA_CONSOLE_PACKAGE" ]      || PANDORA_CONSOLE_PACKAGE="https://firefly.pandorafms.com/pandorafms/latest/Tarball/pandorafms_console-7.0NG.tar.gz"
     [ "$PANDORA_AGENT_PACKAGE" ]        || PANDORA_AGENT_PACKAGE="https://firefly.pandorafms.com/pandorafms/latest/Tarball/pandorafms_agent_linux-7.0NG.x86_64.tar.gz"
@@ -546,7 +553,7 @@ curl -LSs --output pandorafms_agent_linux-7.0NG.tar.gz "${PANDORA_AGENT_PACKAGE}
 
 # Install PandoraFMS Console
 echo -en "${cyan}Installing PandoraFMS Console...${reset}"
-    tar xvzf pandorafms_console-7.0NG.tar.gz &>> "$LOGFILE" && cp -Ra pandora_console /var/www/html/ &>> "$LOGFILE"
+    tar xvzf pandorafms_console-7.0NG.tar.gz &>> "$LOGFILE" && cp -Ra pandora_console /data/pandora/ &>> "$LOGFILE"
 check_cmd_status "Error installing PandoraFMS  Console"
 rm -f $PANDORA_CONSOLE/*.spec &>> "$LOGFILE"
 
@@ -573,27 +580,27 @@ execute_cmd "mv gotty /usr/bin/" 'Installing gotty util'
 #Enable SSL connections
 cat > /etc/apache2/conf-available/ssl-params.conf << EOF_PARAM
 SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
-
+    
     SSLProtocol All -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
-
+    
     SSLHonorCipherOrder On
-
-
+    
+    
     Header always set X-Frame-Options DENY
-
+    
     Header always set X-Content-Type-Options nosniff
-
+    
     # Requires Apache >= 2.4
-
+    
     SSLCompression off
-
+    
     SSLUseStapling on
-
+    
     SSLStaplingCache "shmcb:logs/stapling-cache(150000)"
-
-
+    
+    
     # Requires Apache >= 2.4.11
-
+    
     SSLSessionTickets Off
 EOF_PARAM
 
@@ -613,16 +620,16 @@ execute_cmd "systemctl enable php$PHPVER-fpm --now" "Enabling php$PHPVER-fpm ser
 
 # Populate Database
 echo -en "${cyan}Loading pandoradb.sql to $DBNAME database...${reset}"
-mysql -u$DBUSER -P$DBPORT -h$DBHOST $DBNAME < $PANDORA_CONSOLE/pandoradb.sql &>> "$LOGFILE"
+mysql -u$DBUSER -P$DBPORT -h$DBHOST $DBNAME < /data/pandora/pandora_console/pandoradb.sql &>> "$LOGFILE"
 check_cmd_status 'Error Loading database schema'
 
 echo -en "${cyan}Loading pandoradb_data.sql to $DBNAME database...${reset}"
-mysql -u$DBUSER -P$DBPORT -h$DBHOST $DBNAME < $PANDORA_CONSOLE/pandoradb_data.sql &>> "$LOGFILE"
+mysql -u$DBUSER -P$DBPORT -h$DBHOST $DBNAME < /data/pandora/pandora_console/pandoradb_data.sql &>> "$LOGFILE"
 check_cmd_status 'Error Loading database schema data'
 
 # Configure console
 # Set console config file
-cat > $PANDORA_CONSOLE/include/config.php << EO_CONFIG_F
+cat > /data/pandora/pandora_console/include/config.php << EO_CONFIG_F
 <?php
 \$config["dbtype"] = "mysql";
 \$config["dbname"]="$DBNAME";
@@ -638,7 +645,7 @@ EO_CONFIG_F
 
 #Enable allow Override
 cat > /etc/apache2/conf-enabled/pandora_security.conf << EO_CONFIG_F
-<Directory "/var/www/html">
+<Directory "/data/pandora/">
     Options Indexes FollowSymLinks
     AllowOverride All
     Require all granted
@@ -675,7 +682,7 @@ sed --follow-symlinks -i -e "s/^disable_functions/;disable_functions/" /etc/php.
 echo 'TimeOut 900' > /etc/apache2/conf-enabled/timeout.conf
 echo 'ProxyTimeout 300' >> /etc/apache2/conf-enabled/timeout.conf
 
-cat > /var/www/html/index.html << EOF_INDEX
+cat > /data/pandora/index.html << EOF_INDEX
 <meta HTTP-EQUIV="REFRESH" content="0; url=/pandora_console/">
 EOF_INDEX
 
@@ -696,6 +703,12 @@ sed -i -e "s|^dbpass.*|dbpass $DBPASS|g" $PANDORA_SERVER_CONF
 sed -i -e "s/^dbport.*/dbport $DBPORT/g" $PANDORA_SERVER_CONF
 sed -i -e "s/^#.mssql_driver.*/mssql_driver $MS_ID/g" $PANDORA_SERVER_CONF
 
+#montre ce qu'il y a dans la variable $PANDORA_SERVER_CONF
+echo $PANDORA_SERVER_CONF
+#_____________________________________________________
+
+mv /etc/pandora/pandora_server.conf /data/pandora/pandora_server.conf
+
 # Adding group www-data to pandora server conf.
 grep -q "group www-data" $PANDORA_SERVER_CONF || \
 cat >> $PANDORA_SERVER_CONF << EOF_G
@@ -705,7 +718,7 @@ group www-data
 EOF_G
 
 # Enable agent remote config
-sed -i "s/^remote_config.*$/remote_config 1/g" $PANDORA_AGENT_CONF
+sed -i "s/^remote_config.*$/remote_config 1/g" $PANDORA_AGENT_CONF 
 
 # Set Oracle environment for pandora_server
 cat > /etc/pandora/pandora_server.env << 'EOF_ENV'
@@ -811,7 +824,7 @@ chmod 0644 /etc/logrotate.d/pandora_server
 chmod 0644 /etc/logrotate.d/pandora_agent
 
 # Add websocket engine start script.
-mv /var/www/html/pandora_console/pandora_websocket_engine /etc/init.d/ &>> "$LOGFILE"
+mv /data/pandora/pandora_console/pandora_websocket_engine /etc/init.d/ &>> "$LOGFILE"
 chmod +x /etc/init.d/pandora_websocket_engine
 
 # Start Websocket engine
