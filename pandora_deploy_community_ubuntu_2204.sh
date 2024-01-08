@@ -12,33 +12,6 @@ ln -s /data/pandora/mysql /var/lib/mysql
 mkdir -p /data/pandora/www
 ln -s /data/pandora/www /var/www
 
-mkdir -p /data/pandora/etc/pandora
-ln -s /data/pandora/etc/pandora /etc/pandora
-
-mkdir -p /data/pandora/etc/pandora_gotty
-ln -s /data/pandora/etc/pandora_gotty /etc/pandora_gotty
-
-mkdir -p /data/pandora/log/pandora
-ln -s /data/pandora/log/pandora /var/log/pandora
-
-mkdir -p /data/pandora/spool/pandora
-ln -s /data/pandora/spool/pandora /var/spool/pandora
-
-mkdir -p /data/pandora/agentx
-ln -s /data/pandora/agentx /var/agentx
-
-mkdir -p /data/pandora/usr/lib/perl5/PandoraFMS
-mkdir -p /usr/lib/perl5
-ln -s /data/pandora/usr/lib/perl5/PandoraFMS /usr/lib/perl5/PandoraFMS
-
-mkdir -p /data/pandora/usr/share/pandora_server
-ln -s /data/pandora/usr/share/pandora_server /usr/share/pandora_server
-
-mkdir -p /data/pandora/usr/share/pandora_agent
-ln -s /data/pandora/usr/share/pandora_agent /usr/share/pandora_agent
-
-
-
 
 
 #avoid promps
@@ -857,10 +830,6 @@ systemctl enable pandora_websocket_engine &>> "$LOGFILE"
 # Enable pandora ha service
 execute_cmd "/etc/init.d/pandora_server start" "Starting Pandora FMS Server"
 systemctl enable pandora_server &>> "$LOGFILE"
-
-echo "changing rights 777 for /data/pandora/spool/pandora/data_in/"
-chmod 777 /data/pandora/spool/pandora/data_in/
-
 
 # starting tentacle server
 execute_cmd "service tentacle_serverd start" "Starting Tentacle Server"
