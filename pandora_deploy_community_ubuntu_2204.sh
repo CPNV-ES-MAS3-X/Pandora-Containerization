@@ -6,25 +6,50 @@
 # Ubuntu 22.04.1
 # Ubuntu 22.04.2
 
-#sed -i 's|/data/pandora//pandora_console|/data/pandora/pandora_console|g' "$0"
-#sed -i 's|/etc/pandora/pandora_server.conf|/data/pandora/pandora_server.conf|g' "$0"
-#sed -i 's|/etc/pandora/pandora_agent.conf|/data/pandora/pandora_agent.conf|g' "$0"
-#sed -i 's|/opt/pandora/deploy|/data/pandora/deploy|g' "$0"
+mkdir -p /data/pandora/mysql
+ln -s /data/pandora/mysql /var/lib/mysql
+
+mkdir -p /data/pandora/www
+ln -s /data/pandora/www /var/www
+
+mkdir -p /data/pandora/etc/pandora
+ln -s /data/pandora/etc/pandora /etc/pandora
+
+mkdir -p /data/pandora/etc/pandora_gotty
+ln -s /data/pandora/etc/pandora_gotty /etc/pandora_gotty
+
+mkdir -p /data/pandora/log/pandora
+ln -s /data/pandora/log/pandora /var/log/pandora
+
+mkdir -p /data/pandora/spool/pandora
+ln -s /data/pandora/spool/pandora /var/spool/pandora
+
+mkdir -p /data/pandora/agentx
+ln -s /data/pandora/agentx /var/agentx
+
+mkdir -p /data/pandora/usr/lib/perl5/PandoraFMS
+mkdir -p /usr/lib/perl5
+ln -s /data/pandora/usr/lib/perl5/PandoraFMS /usr/lib/perl5/PandoraFMS
+
+mkdir -p /data/pandora/usr/share/pandora_server
+ln -s /data/pandora/usr/share/pandora_server /usr/share/pandora_server
+
+mkdir -p /data/pandora/usr/share/pandora_agent
+ln -s /data/pandora/usr/share/pandora_agent /usr/share/pandora_agent
+
+
+
+
 
 #avoid promps
 export DEBIAN_FRONTEND=noninteractive
 export NEEDRESTART_SUSPEND=1
 
 #Constants
-#PANDORA_CONSOLE=/data/pandora/pandora_console
-#PANDORA_SERVER_CONF=/etc/pandora/pandora_server.conf
-#PANDORA_AGENT_CONF=/etc/pandora/pandora_agent.conf
-#WORKDIR=/opt/pandora/deploy
-
-PANDORA_CONSOLE=/data/pandora/pandora_console
-PANDORA_SERVER_CONF=/data/pandora/pandora_server.conf
-PANDORA_AGENT_CONF=/data/pandora/pandora_agent.conf
-WORKDIR=/data/pandora/deploy
+PANDORA_CONSOLE=/var/www/html/pandora_console
+PANDORA_SERVER_CONF=/etc/pandora/pandora_server.conf
+PANDORA_AGENT_CONF=/etc/pandora/pandora_agent.conf
+WORKDIR=/opt/pandora/deploy
 
 
 S_VERSION='2023062901'
@@ -240,6 +265,8 @@ execute_cmd  "[ $(grep MemTotal /proc/meminfo | awk '{print $2}') -ge 1700000 ]"
 
 # Check disk size at least 10 Gb free space
 #execute_cmd "[ $(df -BM / | tail -1 | awk '{print $4}' | tr -d M) -gt 10000 ]" 'Checking Disk (required: 10 GB free min)'
+echo -e "disk check bypassed"
+
 
 # Setting timezone
 rm -rf /etc/localtime &>> "$LOGFILE"
@@ -532,7 +559,7 @@ if [ "$PANDORA_LTS" -eq '1' ] ; then
     [ "$PANDORA_SERVER_PACKAGE" ]       || PANDORA_SERVER_PACKAGE="https://firefly.pandorafms.com/pandorafms/latest/Tarball/LTS/pandorafms_server-7.0NG.tar.gz"
     [ "$PANDORA_CONSOLE_PACKAGE" ]      || PANDORA_CONSOLE_PACKAGE="https://firefly.pandorafms.com/pandorafms/latest/Tarball/LTS/pandorafms_console-7.0NG.tar.gz"
     [ "$PANDORA_AGENT_PACKAGE" ]        || PANDORA_AGENT_PACKAGE="https://firefly.pandorafms.com/pandorafms/latest/Tarball/pandorafms_agent_linux-7.0NG.x86_64.tar.gz"
-elif [ "$PANDORApackages_LTS" -ne '1' ] ; then
+elif [ "$PANDORA_LTS" -ne '1' ] ; then
     [ "$PANDORA_SERVER_PACKAGE" ]       || PANDORA_SERVER_PACKAGE="https://firefly.pandorafms.com/pandorafms/latest/Tarball/pandorafms_server-7.0NG.tar.gz"
     [ "$PANDORA_CONSOLE_PACKAGE" ]      || PANDORA_CONSOLE_PACKAGE="https://firefly.pandorafms.com/pandorafms/latest/Tarball/pandorafms_console-7.0NG.tar.gz"
     [ "$PANDORA_AGENT_PACKAGE" ]        || PANDORA_AGENT_PACKAGE="https://firefly.pandorafms.com/pandorafms/latest/Tarball/pandorafms_agent_linux-7.0NG.x86_64.tar.gz"
@@ -553,7 +580,7 @@ curl -LSs --output pandorafms_agent_linux-7.0NG.tar.gz "${PANDORA_AGENT_PACKAGE}
 
 # Install PandoraFMS Console
 echo -en "${cyan}Installing PandoraFMS Console...${reset}"
-    tar xvzf pandorafms_console-7.0NG.tar.gz &>> "$LOGFILE" && cp -Ra pandora_console /data/pandora/ &>> "$LOGFILE"
+    tar xvzf pandorafms_console-7.0NG.tar.gz &>> "$LOGFILE" && cp -Ra pandora_console /var/www/html/ &>> "$LOGFILE"
 check_cmd_status "Error installing PandoraFMS  Console"
 rm -f $PANDORA_CONSOLE/*.spec &>> "$LOGFILE"
 
@@ -620,16 +647,16 @@ execute_cmd "systemctl enable php$PHPVER-fpm --now" "Enabling php$PHPVER-fpm ser
 
 # Populate Database
 echo -en "${cyan}Loading pandoradb.sql to $DBNAME database...${reset}"
-mysql -u$DBUSER -P$DBPORT -h$DBHOST $DBNAME < /data/pandora/pandora_console/pandoradb.sql &>> "$LOGFILE"
+mysql -u$DBUSER -P$DBPORT -h$DBHOST $DBNAME < $PANDORA_CONSOLE/pandoradb.sql &>> "$LOGFILE"
 check_cmd_status 'Error Loading database schema'
 
 echo -en "${cyan}Loading pandoradb_data.sql to $DBNAME database...${reset}"
-mysql -u$DBUSER -P$DBPORT -h$DBHOST $DBNAME < /data/pandora/pandora_console/pandoradb_data.sql &>> "$LOGFILE"
+mysql -u$DBUSER -P$DBPORT -h$DBHOST $DBNAME < $PANDORA_CONSOLE/pandoradb_data.sql &>> "$LOGFILE"
 check_cmd_status 'Error Loading database schema data'
 
 # Configure console
 # Set console config file
-cat > /data/pandora/pandora_console/include/config.php << EO_CONFIG_F
+cat > $PANDORA_CONSOLE/include/config.php << EO_CONFIG_F
 <?php
 \$config["dbtype"] = "mysql";
 \$config["dbname"]="$DBNAME";
@@ -645,7 +672,7 @@ EO_CONFIG_F
 
 #Enable allow Override
 cat > /etc/apache2/conf-enabled/pandora_security.conf << EO_CONFIG_F
-<Directory "/data/pandora/">
+<Directory "/var/www/html">
     Options Indexes FollowSymLinks
     AllowOverride All
     Require all granted
@@ -682,7 +709,7 @@ sed --follow-symlinks -i -e "s/^disable_functions/;disable_functions/" /etc/php.
 echo 'TimeOut 900' > /etc/apache2/conf-enabled/timeout.conf
 echo 'ProxyTimeout 300' >> /etc/apache2/conf-enabled/timeout.conf
 
-cat > /data/pandora/index.html << EOF_INDEX
+cat > /var/www/html/index.html << EOF_INDEX
 <meta HTTP-EQUIV="REFRESH" content="0; url=/pandora_console/">
 EOF_INDEX
 
@@ -702,12 +729,6 @@ sed -i -e "s/^dbuser.*/dbuser $DBUSER/g" $PANDORA_SERVER_CONF
 sed -i -e "s|^dbpass.*|dbpass $DBPASS|g" $PANDORA_SERVER_CONF
 sed -i -e "s/^dbport.*/dbport $DBPORT/g" $PANDORA_SERVER_CONF
 sed -i -e "s/^#.mssql_driver.*/mssql_driver $MS_ID/g" $PANDORA_SERVER_CONF
-
-#montre ce qu'il y a dans la variable $PANDORA_SERVER_CONF
-echo $PANDORA_SERVER_CONF
-#_____________________________________________________
-
-mv /etc/pandora/pandora_server.conf /data/pandora/pandora_server.conf
 
 # Adding group www-data to pandora server conf.
 grep -q "group www-data" $PANDORA_SERVER_CONF || \
@@ -824,7 +845,7 @@ chmod 0644 /etc/logrotate.d/pandora_server
 chmod 0644 /etc/logrotate.d/pandora_agent
 
 # Add websocket engine start script.
-mv /data/pandora/pandora_console/pandora_websocket_engine /etc/init.d/ &>> "$LOGFILE"
+mv /var/www/html/pandora_console/pandora_websocket_engine /etc/init.d/ &>> "$LOGFILE"
 chmod +x /etc/init.d/pandora_websocket_engine
 
 # Start Websocket engine
@@ -836,6 +857,10 @@ systemctl enable pandora_websocket_engine &>> "$LOGFILE"
 # Enable pandora ha service
 execute_cmd "/etc/init.d/pandora_server start" "Starting Pandora FMS Server"
 systemctl enable pandora_server &>> "$LOGFILE"
+
+echo "changing rights 777 for /data/pandora/spool/pandora/data_in/"
+chmod 777 /data/pandora/spool/pandora/data_in/
+
 
 # starting tentacle server
 execute_cmd "service tentacle_serverd start" "Starting Tentacle Server"
