@@ -7,14 +7,10 @@
 # Ubuntu 22.04.2
 
 
-
-
-
-
 #--------- création arborescence ------------------------------------------
 
-mkdir -p /data/pandora/etc/pandora
-ln -s /data/pandora/etc/pandora /etc/pandora
+#mkdir -p /data/pandora/etc/pandora
+#ln -s /data/pandora/etc/pandora /etc/pandora
 
 mkdir -p /data/pandora/etc/pandora_gotty
 ln -s /data/pandora/etc/pandora_gotty /etc/pandora_gotty
@@ -212,6 +208,7 @@ chmod -R 777 /data/pandora
 
 #------------------------------------------------------------------
 #------------------------------------------------------------------
+
 
 #avoid promps
 export DEBIAN_FRONTEND=noninteractive
@@ -438,7 +435,6 @@ execute_cmd  "[ $(grep MemTotal /proc/meminfo | awk '{print $2}') -ge 1700000 ]"
 # Check disk size at least 10 Gb free space
 #execute_cmd "[ $(df -BM / | tail -1 | awk '{print $4}' | tr -d M) -gt 10000 ]" 'Checking Disk (required: 10 GB free min)'
 echo -e "disk check bypassed"
-
 
 # Setting timezone
 rm -rf /etc/localtime &>> "$LOGFILE"
@@ -1018,7 +1014,7 @@ chmod 0644 /etc/logrotate.d/pandora_agent
 
 # Add websocket engine start script.
 mv /var/www/html/pandora_console/pandora_websocket_engine /etc/init.d/ &>> "$LOGFILE"
-chmod +x /etc/init.d/pandora_websocket_engine
+chmod +x /etc/init.d/pandora_websocket_engine &>> "$LOGFILE"
 
 # Start Websocket engine
 /etc/init.d/pandora_websocket_engine start &>> "$LOGFILE"
@@ -1029,10 +1025,6 @@ systemctl enable pandora_websocket_engine &>> "$LOGFILE"
 # Enable pandora ha service
 execute_cmd "/etc/init.d/pandora_server start" "Starting Pandora FMS Server"
 systemctl enable pandora_server &>> "$LOGFILE"
-
-echo "changing rights 777 for /data/pandora/spool/pandora/data_in/"
-chmod 777 /data/pandora/spool/pandora/data_in/
-
 
 # starting tentacle server
 execute_cmd "service tentacle_serverd start" "Starting Tentacle Server"
