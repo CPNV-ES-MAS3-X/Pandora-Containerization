@@ -6,13 +6,212 @@
 # Ubuntu 22.04.1
 # Ubuntu 22.04.2
 
-mkdir -p /data/pandora/mysql
-ln -s /data/pandora/mysql /var/lib/mysql
+
+
+
+
+
+#--------- création arborescence ------------------------------------------
+
+mkdir -p /data/pandora/etc/pandora
+ln -s /data/pandora/etc/pandora /etc/pandora
+
+mkdir -p /data/pandora/etc/pandora_gotty
+ln -s /data/pandora/etc/pandora_gotty /etc/pandora_gotty
+
+#--
+
+mkdir -p /data/pandora/opt/containerd
+ln -s /data/pandora/opt/containerd /opt/containerd
+
+mkdir -p /data/pandora/opt/microsoft
+ln -s /data/pandora/opt/microsoft /opt/microsoft
+
+mkdir -p /data/pandora/opt/google
+ln -s /data/pandora/opt/google /opt/google
+
+mkdir -p /data/pandora/opt/pandora
+ln -s /data/pandora/opt/pandora /opt/pandora
+
+mkdir -p /data/pandora/opt/oracle
+ln -s /data/pandora/opt/oracle /opt/oracle
+
+#--
+
+mkdir -p /data/pandora/root/.cpan
+ln -s /data/pandora/root/.cpan /root/.cpan
+
+mkdir -p /data/pandora/root/.launchpadlib
+ln -s /data/pandora/root/.launchpadlib /root/.launchpadlib
+
+#--
+
+mkdir -p /data/pandora/usr/libexec/docker
+ln -s /data/pandora/usr/libexec/docker /usr/libexec/docker
+
+mkdir -p /data/pandora/usr/bin
+touch /data/pandora/usr/bin/pandora_made
+ln -s /data/pandora/usr/bin/pandora_made /usr/bin/pandora_made
+
+touch /data/pandora/usr/bin/dockerd
+ln -s /data/pandora/usr/bin/dockerd /usr/bin/dockerd
+
+touch /data/pandora/usr/bin/containerd
+ln -s /data/pandora/usr/bin/containerd /usr/bin/containerd
+
+touch /data/pandora/usr/bin/docker
+ln -s /data/pandora/usr/bin/docker /usr/bin/docker
+
+touch /data/pandora/usr/bin/pandora_agent
+ln -s /data/pandora/usr/bin/pandora_agent /usr/bin/pandora_agent
+
+touch /data/pandora/usr/bin/pandora_gotty
+ln -s /data/pandora/usr/bin/pandora_gotty /usr/bin/pandora_gotty
+
+touch /data/pandora/usr/bin/pandora_gotty_exec
+ln -s /data/pandora/usr/bin/pandora_gotty_exec /usr/bin/pandora_gotty_exec
+
+touch /data/pandora/usr/bin/pandorawmic
+ln -s /data/pandora/usr/bin/pandorawmic /usr/bin/pandorawmic
+
+mkdir -p /data/pandora/usr/include/{netrom,scsi,rdma,openssl,tirpc,netipx,rpc,netinet,netatalk,net,python3.10,xcb,netiucv,c++,neteconet,protocols,netash,rpcsvc,x86_64-linux-gnu,X11,uuid,linux,asm-generic,netpacket,GL,netax25,coredumper,sound,video,finclude,nfs,drm,xen,mtd,netrose,arpa,misc}
+ln -s /data/pandora/usr/include/netrom /usr/include/netrom
+ln -s /data/pandora/usr/include/scsi /usr/include/scsi
+ln -s /data/pandora/usr/include/rdma /usr/include/rdma
+ln -s /data/pandora/usr/include/openssl /usr/include/openssl
+ln -s /data/pandora/usr/include/tirpc /usr/include/tirpc
+ln -s /data/pandora/usr/include/netipx /usr/include/netipx
+ln -s /data/pandora/usr/include/rpc /usr/include/rpc
+ln -s /data/pandora/usr/include/netinet /usr/include/netinet
+ln -s /data/pandora/usr/include/netatalk /usr/include/netatalk
+ln -s /data/pandora/usr/include/net /usr/include/net
+ln -s /data/pandora/usr/include/python3.10 /usr/include/python3.10
+ln -s /data/pandora/usr/include/xcb /usr/include/xcb
+ln -s /data/pandora/usr/include/netiucv /usr/include/netiucv
+ln -s /data/pandora/usr/include/c++ /usr/include/c++
+ln -s /data/pandora/usr/include/neteconet /usr/include/neteconet
+ln -s /data/pandora/usr/include/protocols /usr/include/protocols
+ln -s /data/pandora/usr/include/netash /usr/include/netash
+ln -s /data/pandora/usr/include/rpcsvc /usr/include/rpcsvc
+ln -s /data/pandora/usr/include/x86_64-linux-gnu /usr/include/x86_64-linux-gnu
+ln -s /data/pandora/usr/include/X11 /usr/include/X11
+ln -s /data/pandora/usr/include/uuid /usr/include/uuid
+ln -s /data/pandora/usr/include/linux /usr/include/linux
+ln -s /data/pandora/usr/include/asm-generic /usr/include/asm-generic
+ln -s /data/pandora/usr/include/netpacket /usr/include/netpacket
+ln -s /data/pandora/usr/include/GL /usr/include/GL
+ln -s /data/pandora/usr/include/netax25 /usr/include/netax25
+ln -s /data/pandora/usr/include/coredumper /usr/include/coredumper
+ln -s /data/pandora/usr/include/sound /usr/include/sound
+ln -s /data/pandora/usr/include/video /usr/include/video
+ln -s /data/pandora/usr/include/finclude /usr/include/finclude
+ln -s /data/pandora/usr/include/nfs /usr/include/nfs
+ln -s /data/pandora/usr/include/drm /usr/include/drm
+ln -s /data/pandora/usr/include/xen /usr/include/xen
+ln -s /data/pandora/usr/include/mtd /usr/include/mtd
+ln -s /data/pandora/usr/include/netrose /usr/include/netrose
+ln -s /data/pandora/usr/include/arpa /usr/include/arpa
+ln -s /data/pandora/usr/include/misc /usr/include/misc
+
+mkdir -p /data/pandora/usr/lib32/gconv
+ln -s /data/pandora/usr/lib32/gconv /usr/lib32/gconv
+
+mkdir -p /data/pandora/usr/lib/apache2
+ln -s /data/pandora/usr/lib/apache2 /usr/lib/apache2
+
+mkdir -p /data/pandora/usr/lib/php
+ln -s /data/pandora/usr/lib/php /usr/lib/php
+
+mkdir -p /data/pandora/usr/lib/mysql
+ln -s /data/pandora/usr/lib/mysql /usr/lib/mysql
+
+mkdir -p /data/pandora/usr/lib/python3.10/config-3.10-x86_64-linux-gnu
+ln -s /data/pandora/usr/lib/python3.10/config-3.10-x86_64-linux-gnu /usr/lib/python3.10/config-3.10-x86_64-linux-gnu
+
+mkdir -p /data/pandora/usr/lib/perl5
+ln -s /data/pandora/usr/lib/perl5 /usr/lib/perl5
+
+mkdir -p /data/pandora/usr/lib/x86_64-linux-gnu/dri
+ln -s /data/pandora/usr/lib/x86_64-linux-gnu/dri /usr/lib/x86_64-linux-gnu/dri
+
+mkdir -p /data/pandora/usr/lib/jvm
+ln -s /data/pandora/usr/lib/jvm /usr/lib/jvm
+
+mkdir -p /data/pandora/usr/lib/gcc
+ln -s /data/pandora/usr/lib/gcc /usr/lib/gcc
+
+mkdir -p /data/pandora/usr/share/apache2
+ln -s /data/pandora/usr/share/apache2 /usr/share/apache2
+
+mkdir -p /data/pandora/usr/share/mysql
+ln -s /data/pandora/usr/share/mysql /usr/share/mysql
+
+mkdir -p /data/pandora/usr/share/pandora_server
+ln -s /data/pandora/usr/share/pandora_server /usr/share/pandora_server
+
+mkdir -p /data/pandora/usr/share/snmp
+ln -s /data/pandora/usr/share/snmp /usr/share/snmp
+
+mkdir -p /data/pandora/usr/share/alsa
+ln -s /data/pandora/usr/share/alsa /usr/share/alsa
+
+mkdir -p /data/pandora/usr/share/fonts
+ln -s /data/pandora/usr/share/fonts /usr/share/fonts
+
+mkdir -p /data/pandora/usr/share/nmap
+ln -s /data/pandora/usr/share/nmap /usr/share/nmap
+
+mkdir -p /data/pandora/usr/share/doc/openjdk-8-jre-headless
+ln -s /data/pandora/usr/share/doc/openjdk-8-jre-headless /usr/share/doc/openjdk-8-jre-headless
+
+mkdir -p /data/pandora/usr/share/icons
+mv /usr/share/icons /data/pandora/usr/share/icons
+ln -s /data/pandora/usr/share/icons /usr/share/icons
+
+mkdir -p /data/pandora/usr/share/GeoIP
+ln -s /data/pandora/usr/share/GeoIP /usr/share/GeoIP
+
+mkdir -p /data/pandora/usr/share/pandora_agent
+ln -s /data/pandora/usr/share/pandora_agent /usr/share/pandora_agent
+
+#--
+
+mkdir -p /data/pandora/var/spool/pandora
+ln -s /data/pandora/var/spool/pandora /var/spool/pandora
+
+mkdir -p /data/pandora/var/spool/postfix
+ln -s /data/pandora/var/spool/postfix /var/spool/postfix
+
+mkdir -p /data/pandora/var/lib/mibs
+ln -s /data/pandora/var/lib/mibs /var/lib/mibs
+
+mkdir -p /data/pandora/var/lib/mysql
+ln -s /data/pandora/var/lib/mysql /var/lib/mysql
+
+mkdir -p /data/pandora/var/agentx
+ln -s /data/pandora/var/agentx /var/agentx
 
 mkdir -p /data/pandora/www
 ln -s /data/pandora/www /var/www
 
+mkdir -p /data/pandora/var/log/pandora
+ln -s /data/pandora/var/log/pandora /var/log/pandora
 
+mkdir -p /data/pandora/var/log/apache2
+ln -s /data/pandora/var/log/apache2 /var/log/apache2
+
+mkdir -p /data/pandora/var/log/mysql
+ln -s /data/pandora/var/log/mysql /var/log/mysql
+
+
+
+
+
+#change les droits sur les dossiers et sous-dossier de /data/pandora
+chmod -R 777 /data/pandora
+
+#------------------------------------------------------------------
+#------------------------------------------------------------------
 
 #avoid promps
 export DEBIAN_FRONTEND=noninteractive
@@ -830,6 +1029,10 @@ systemctl enable pandora_websocket_engine &>> "$LOGFILE"
 # Enable pandora ha service
 execute_cmd "/etc/init.d/pandora_server start" "Starting Pandora FMS Server"
 systemctl enable pandora_server &>> "$LOGFILE"
+
+echo "changing rights 777 for /data/pandora/spool/pandora/data_in/"
+chmod 777 /data/pandora/spool/pandora/data_in/
+
 
 # starting tentacle server
 execute_cmd "service tentacle_serverd start" "Starting Tentacle Server"
